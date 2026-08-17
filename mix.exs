@@ -24,7 +24,8 @@ defmodule Slimes.MixProject do
     [
       {:websock_adapter, "~> 0.6"},
       {:plug, "~> 1.20"},
-      {:bandit, "~> 1.12"}
+      {:bandit, "~> 1.12"},
+      {:peri, "~> 0.9"}
     ]
   end
 end
