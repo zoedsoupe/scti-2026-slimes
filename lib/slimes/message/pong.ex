@@ -1,5 +1,9 @@
 defmodule Slimes.Message.Pong do
-  @moduledoc false
+  @moduledoc """
+  Resposta ao `PING`, ecoando o ref recebido.
+
+      PONG aurora-k3f9-30
+  """
 
   @type t :: %__MODULE__{ref: String.t()}
 

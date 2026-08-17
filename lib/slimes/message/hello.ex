@@ -1,5 +1,19 @@
 defmodule Slimes.Message.Hello do
-  @moduledoc false
+  @moduledoc """
+  Entrada no jogo. Primeira mensagem do socket, enviada uma vez.
+
+      HELLO v1 aurora-k3f9-1 colony aurora
+      HELLO v1 proj-a1b2-1 spectator
+
+  É a única mensagem que carrega a versão do protocolo: o servidor assume v1
+  nas demais e responde versão errada com `ERR bad_version`. O nome só
+  existe para colônia; `"spectator"` é nome reservado e nome inválido ou
+  duplicado leva `NACK bad_name`.
+
+  Reconexão: nome de colônia viva retoma a colônia, com mesmo id e estado
+  intacto. Nome de colônia eliminada é entrada nova. Respondida por
+  `WELCOME` ou `NACK`.
+  """
 
   @type t :: %__MODULE__{
           ref: String.t(),

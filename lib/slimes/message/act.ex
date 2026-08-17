@@ -1,5 +1,16 @@
 defmodule Slimes.Message.Act do
-  @moduledoc false
+  @moduledoc """
+  A única ação da colônia neste tick.
+
+      ACT aurora-k3f9-17 expand 12 7
+      ACT aurora-k3f9-18 pass
+
+  Os tipos são `expand`, `attack`, `fortify` e `pass`. As coordenadas são
+  absolutas e obrigatórias, exceto em `pass`. Respondida por `ACK` (aceita
+  neste tick) ou `NACK` (rejeitada, com código). Reenviar o mesmo ref depois
+  de perder um `ACK` é seguro: o servidor deduplica por `(colony_id, ref)` e
+  reenvia a confirmação sem reaplicar a ação.
+  """
 
   @type t :: %__MODULE__{
           ref: String.t(),
