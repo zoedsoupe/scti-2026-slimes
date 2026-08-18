@@ -192,6 +192,19 @@ defmodule Slimes.World.Resolve do
 
   ## RNG sempre passado adiante, nunca o dicionário de processo
 
+  @doc """
+  Ordem de resolução de um tick, sem rodar a resolução.
+
+  Mesma seed e mesmo shuffle de `resolve/3`, para o `World` gravar no log
+  as ações na ordem em que foram (ou seriam) resolvidas.
+  """
+  @spec seeded_order([term], non_neg_integer, non_neg_integer) :: [term]
+  def seeded_order(colony_ids, base_seed, tick) do
+    rng = :rand.seed(:exsss, {base_seed, tick, 0})
+    {order, _rng} = shuffle(colony_ids, rng)
+    order
+  end
+
   defp shuffle(list, rng) when length(list) < 2, do: {list, rng}
 
   defp shuffle(list, rng) do

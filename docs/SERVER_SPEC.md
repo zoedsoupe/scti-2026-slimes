@@ -139,18 +139,18 @@ There is no standalone tick message. The tick number rides inside `OBS` and `SCO
 
 Error code routing:
 
-| code | via | when |
-|---|---|---|
-| `bad_version` | ERR | HELLO with version other than `v1` |
-| `bad_message` | ERR | malformed line, unknown type, bad arity, non-integer number |
-| `bad_name` | NACK | invalid, reserved (`spectator`), or duplicate-of-live name |
-| `bad_cell` | NACK | out of grid or not adjacent to the colony |
-| `not_empty` | NACK | expand into an owned cell |
-| `not_enemy` | NACK | attack into empty or own cell |
-| `not_self` | NACK | fortify a cell the colony does not own |
-| `attacks_disabled` | NACK | attack in cooperative mode |
-| `duplicate_ref` | NACK | informational; the recorded original ACK follows immediately |
-| `too_late` | NACK | arrived after resolution; queued for next tick |
+| code               | via  | when                                                         |
+| ------------------ | ---- | ------------------------------------------------------------ |
+| `bad_version`      | ERR  | HELLO with version other than `v1`                           |
+| `bad_message`      | ERR  | malformed line, unknown type, bad arity, non-integer number  |
+| `bad_name`         | NACK | invalid, reserved (`spectator`), or duplicate-of-live name   |
+| `bad_cell`         | NACK | out of grid or not adjacent to the colony                    |
+| `not_empty`        | NACK | expand into an owned cell                                    |
+| `not_enemy`        | NACK | attack into empty or own cell                                |
+| `not_self`         | NACK | fortify a cell the colony does not own                       |
+| `attacks_disabled` | NACK | attack in cooperative mode                                   |
+| `duplicate_ref`    | NACK | informational; the recorded original ACK follows immediately |
+| `too_late`         | NACK | arrived after resolution; queued for next tick               |
 
 ## 7. Determinism and RNG
 

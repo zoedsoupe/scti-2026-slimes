@@ -28,12 +28,12 @@ HELLO v1 aurora-k3f9-1 colony aurora
 HELLO v1 proj-a1b2-1 spectator
 ```
 
-| token | regra |
-|---|---|
-| versão | `v1` |
-| ref | `<nome>-<sessão>-<n>` |
-| role | `colony` ou `spectator` |
-| nome | só para colônia. `"spectator"` é nome reservado; inválido ou duplicado leva `NACK bad_name` |
+| token  | regra                                                                                       |
+| ------ | ------------------------------------------------------------------------------------------- |
+| versão | `v1`                                                                                        |
+| ref    | `<nome>-<sessão>-<n>`                                                                       |
+| role   | `colony` ou `spectator`                                                                     |
+| nome   | só para colônia. `"spectator"` é nome reservado; inválido ou duplicado leva `NACK bad_name` |
 
 Reconexão: nome de colônia **viva** retoma a colônia (mesmo id, estado intacto). Nome de colônia **eliminada** é entrada nova. Respondido por `WELCOME` ou `NACK`.
 
@@ -46,11 +46,11 @@ ACT aurora-k3f9-17 expand 12 7
 ACT aurora-k3f9-18 pass
 ```
 
-| token | regra |
-|---|---|
-| ref | correlação |
-| kind | `expand`, `attack`, `fortify`, `pass` |
-| x y | coordenadas absolutas; obrigatórias exceto em `pass` |
+| token | regra                                                |
+| ----- | ---------------------------------------------------- |
+| ref   | correlação                                           |
+| kind  | `expand`, `attack`, `fortify`, `pass`                |
+| x y   | coordenadas absolutas; obrigatórias exceto em `pass` |
 
 Respondido por `ACK` (aceita neste tick) ou `NACK` (rejeitada, com código). Reenviar o mesmo ref depois de perder um `ACK` é seguro: o servidor deduplica por `(colony_id, ref)` e reenvia o ack sem reaplicar.
 
@@ -70,15 +70,15 @@ Respondido por `PONG` ecoando o ref.
 WELCOME srv-0 3 aurora 96CDFB 60 40 1000 3 4,34
 ```
 
-| token | significado |
-|---|---|
-| colony id | seu identificador numérico |
-| nome | eco do `HELLO` |
-| cor | hex sem `#` |
-| w h | dimensões da grade |
-| tick_ms | duração do tick |
-| view_radius | raio de visão |
-| spawn | `x,y` da célula inicial |
+| token       | significado                |
+| ----------- | -------------------------- |
+| colony id   | seu identificador numérico |
+| nome        | eco do `HELLO`             |
+| cor         | hex sem `#`                |
+| w h         | dimensões da grade         |
+| tick_ms     | duração do tick            |
+| view_radius | raio de visão              |
+| spawn       | `x,y` da célula inicial    |
 
 ### WELCOME (espectador)
 
@@ -96,12 +96,12 @@ Uma por tick, por colônia. Visão local apenas.
 OBS srv-97 97 alive 97 9,5,plain,0,0;10,5,plain,3,1;11,5,forest,2,0
 ```
 
-| token | significado |
-|---|---|
-| tick | o tick que esta observação descreve |
-| status | `alive` ou `dead`; depois da eliminação o socket continua aberto para assistir |
-| scores_tick | tick do último scoreboard; permite notar um scoreboard perdido |
-| células | união das vizinhanças 7x7 ao redor de cada célula da colônia |
+| token       | significado                                                                    |
+| ----------- | ------------------------------------------------------------------------------ |
+| tick        | o tick que esta observação descreve                                            |
+| status      | `alive` ou `dead`; depois da eliminação o socket continua aberto para assistir |
+| scores_tick | tick do último scoreboard; permite notar um scoreboard perdido                 |
+| células     | união das vizinhanças 7x7 ao redor de cada célula da colônia                   |
 
 Cada célula é `x,y,terrain,owner,fortified`: `terrain` é `plain`, `forest`, `water` ou `rock` (decorativo na v1); `owner` é `0` (vazia) ou id de colônia; `fortified` é `0`/`1` e visível para qualquer dono, então dá para ver um forte inimigo antes de atacar.
 
@@ -141,15 +141,15 @@ ERR aurora-k3f9-31 bad_message tipo desconhecido ACTN
 
 ## Códigos de erro (tabela fixa)
 
-| código | significado |
-|---|---|
-| `bad_version` | versão diferente da do servidor |
-| `bad_message` | linha malformada ou tipo desconhecido |
-| `bad_name` | nome inválido, duplicado ou reservado |
-| `bad_cell` | fora da grade ou não adjacente à colônia |
-| `not_empty` | `expand` para célula ocupada |
-| `not_enemy` | `attack` para célula que não é inimiga |
-| `not_self` | `fortify` em célula que a colônia não possui |
-| `attacks_disabled` | `attack` no modo cooperativo |
-| `duplicate_ref` | informacional; o `ACK` original é reenviado em seguida |
-| `too_late` | chegou após a resolução; enfileirada para o próximo tick, nunca descartada em silêncio |
+| código             | significado                                                                            |
+| ------------------ | -------------------------------------------------------------------------------------- |
+| `bad_version`      | versão diferente da do servidor                                                        |
+| `bad_message`      | linha malformada ou tipo desconhecido                                                  |
+| `bad_name`         | nome inválido, duplicado ou reservado                                                  |
+| `bad_cell`         | fora da grade ou não adjacente à colônia                                               |
+| `not_empty`        | `expand` para célula ocupada                                                           |
+| `not_enemy`        | `attack` para célula que não é inimiga                                                 |
+| `not_self`         | `fortify` em célula que a colônia não possui                                           |
+| `attacks_disabled` | `attack` no modo cooperativo                                                           |
+| `duplicate_ref`    | informacional; o `ACK` original é reenviado em seguida                                 |
+| `too_late`         | chegou após a resolução; enfileirada para o próximo tick, nunca descartada em silêncio |

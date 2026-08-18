@@ -1,0 +1,6 @@
+{"mode":"tournament","kind":"config","base_seed":42,"tick_ms":1000,"grid":{"h":3,"w":5},"terrain":[],"view_radius":3}
+{"kind":"spawns","colonies":[{"id":1,"name":"aurora","cell":[0,1]},{"id":2,"name":"nova","cell":[1,0]}]}
+{"tick":1,"diff":[[1,1,1,0]],"kind":"tick","scores":[{"alive":true,"id":1,"cells":2},{"alive":true,"id":2,"cells":1}],"actions":[{"kind":"expand","cell":[1,1],"colony":1}]}
+{"tick":2,"diff":[[2,1,1,0]],"kind":"tick","scores":[{"alive":true,"id":1,"cells":3},{"alive":true,"id":2,"cells":1}],"actions":[{"kind":"expand","cell":[2,1],"colony":1}]}
+{"tick":3,"diff":[[1,1,2,0],[2,1,0,0]],"kind":"tick","scores":[{"alive":true,"id":1,"cells":1},{"alive":true,"id":2,"cells":2}],"actions":[{"kind":"attack","cell":[1,1],"colony":2}]}
+{"tick":3,"kind":"final","scores":[{"alive":true,"id":1,"cells":1},{"alive":true,"id":2,"cells":2}]}

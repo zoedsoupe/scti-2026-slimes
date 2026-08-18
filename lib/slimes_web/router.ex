@@ -16,8 +16,8 @@ defmodule SlimesWeb.Router do
 
   get "/debug/log" do
     conn
-    |> put_resp_header("content-type", "text/plain")
-    |> send_resp(200, "here are your logs!")
+    |> put_resp_header("content-type", "application/x-ndjson")
+    |> send_resp(200, Slimes.World.export(Slimes.World))
   end
 
   get "/kit.zip" do

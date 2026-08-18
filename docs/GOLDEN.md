@@ -7,7 +7,15 @@ One file per scenario. One JSON object per line, in this exact order:
 ## Line 1: config
 
 ```json
-{"kind": "config", "base_seed": 42, "grid": {"w": 60, "h": 40}, "tick_ms": 1000, "view_radius": 3, "mode": "tournament", "terrain": [[11, 5, "forest"]]}
+{
+  "kind": "config",
+  "base_seed": 42,
+  "grid": { "w": 60, "h": 40 },
+  "tick_ms": 1000,
+  "view_radius": 3,
+  "mode": "tournament",
+  "terrain": [[11, 5, "forest"]]
+}
 ```
 
 `terrain` lists every non-plain cell. `mode` is `"cooperative"` or `"tournament"`.
@@ -15,7 +23,13 @@ One file per scenario. One JSON object per line, in this exact order:
 ## Line 2: spawns
 
 ```json
-{"kind": "spawns", "colonies": [{"id": 1, "name": "aurora", "cell": [4, 34]}, {"id": 2, "name": "nova", "cell": [55, 5]}]}
+{
+  "kind": "spawns",
+  "colonies": [
+    { "id": 1, "name": "aurora", "cell": [4, 34] },
+    { "id": 2, "name": "nova", "cell": [55, 5] }
+  ]
+}
 ```
 
 Spawn cells are precomputed with the same seeded RNG the server uses, so replay never calls the spawn logic.
@@ -23,21 +37,37 @@ Spawn cells are precomputed with the same seeded RNG the server uses, so replay 
 ## Lines 3..N-1: one per tick
 
 ```json
-{"kind": "tick", "tick": 1, "actions": [{"colony": 1, "kind": "expand", "cell": [4, 33]}], "diff": [[4, 33, 1, 0]], "scores": [{"id": 1, "cells": 2, "alive": true}, {"id": 2, "cells": 1, "alive": true}]}
+{
+  "kind": "tick",
+  "tick": 1,
+  "actions": [{ "colony": 1, "kind": "expand", "cell": [4, 33] }],
+  "diff": [[4, 33, 1, 0]],
+  "scores": [
+    { "id": 1, "cells": 2, "alive": true },
+    { "id": 2, "cells": 1, "alive": true }
+  ]
+}
 ```
 
-| field | rule |
-|---|---|
+| field     | rule                                                                                     |
+| --------- | ---------------------------------------------------------------------------------------- |
 | `actions` | in the exact seeded resolution order for that tick, already validated; `pass` is omitted |
-| `diff` | cell changes as `[x, y, owner, fortified]`, same shape as the wire `DIFF` |
-| `scores` | full scoreboard after resolution, ordered by colony id |
+| `diff`    | cell changes as `[x, y, owner, fortified]`, same shape as the wire `DIFF`                |
+| `scores`  | full scoreboard after resolution, ordered by colony id                                   |
 
 A tick with no actions has `"actions": []` and usually an empty `diff`.
 
 ## Last line: final
 
 ```json
-{"kind": "final", "tick": 3, "scores": [{"id": 1, "cells": 4, "alive": true}, {"id": 2, "cells": 1, "alive": true}]}
+{
+  "kind": "final",
+  "tick": 3,
+  "scores": [
+    { "id": 1, "cells": 4, "alive": true },
+    { "id": 2, "cells": 1, "alive": true }
+  ]
+}
 ```
 
 ## Replay contract (what the simulator must do)

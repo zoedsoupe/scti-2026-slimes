@@ -70,6 +70,11 @@ defmodule Slimes.World do
     GenServer.call(world, :event_log)
   end
 
+  @doc "Exporta o log da partida como JSONL no formato de docs/GOLDEN.md."
+  def export(world) do
+    GenServer.call(world, :export)
+  end
+
   ## Callbacks
 
   @impl true
@@ -160,6 +165,10 @@ defmodule Slimes.World do
     {:reply, state.event_log, state}
   end
 
+  def handle_call(:export, _from, state) do
+    {:reply, export_jsonl(state), state}
+  end
+
   @impl true
   def handle_info(:tick, state) do
     state = %{state | accepting: false}
@@ -190,20 +199,51 @@ defmodule Slimes.World do
       Logger.info("colonia #{id} (#{new_state.colonies[id].name}) eliminada no tick #{next}")
     end
 
+    log_actions = ordered_actions(state, next)
+
     state = %{
       state
       | tick: next,
         cells: new_state.cells,
         colonies: new_state.colonies,
         queue: %{},
-        event_log: state.event_log ++ events,
         scores_tick: next
     }
+
+    entry = %{
+      tick: next,
+      actions: log_actions,
+      events: events,
+      scores: golden_scores(state)
+    }
+
+    state = %{state | event_log: state.event_log ++ [entry]}
 
     broadcast(state, events)
     schedule_tick(state.tick_ms)
 
     {:noreply, %{state | accepting: true}}
+  end
+
+  # ações do tick na ordem seeded de resolução, sem os pass
+  defp ordered_actions(state, tick) do
+    order = Resolve.seeded_order(Map.keys(state.colonies), state.base_seed, tick)
+
+    state.queue
+    |> Enum.filter(fn {id, action} ->
+      state.colonies[id].status == :alive and action.kind != :pass
+    end)
+    |> Enum.map(fn {_id, action} -> action end)
+    |> Enum.sort_by(fn action -> Enum.find_index(order, &(&1 == action.colony)) end)
+  end
+
+  # placar no formato das fixtures: id, contagem e vivo/morto, por id
+  defp golden_scores(state) do
+    state.colonies
+    |> Enum.sort_by(fn {id, _} -> id end)
+    |> Enum.map(fn {id, colony} ->
+      %{id: id, cells: cell_count(state, id), alive: colony.status == :alive}
+    end)
   end
 
   ## Entrada de colônias
@@ -437,6 +477,64 @@ defmodule Slimes.World do
       cell = cell_at(state, x, y)
       {x, y, cell.terrain, cell.owner, cell.fortified}
     end)
+  end
+
+  ## Exportação JSONL (formato de docs/GOLDEN.md)
+
+  defp export_jsonl(state) do
+    lines =
+      [config_line(state), spawns_line(state)] ++
+        Enum.map(state.event_log, &tick_line/1) ++
+        [final_line(state)]
+
+    Enum.map_join(lines, "\n", &JSON.encode!/1) <> "\n"
+  end
+
+  defp config_line(state) do
+    terrain =
+      for {{x, y}, %{terrain: t}} <- state.cells, t != :plain do
+        [x, y, Atom.to_string(t)]
+      end
+
+    %{
+      kind: "config",
+      base_seed: state.base_seed,
+      grid: %{w: state.width, h: state.height},
+      tick_ms: state.tick_ms,
+      view_radius: @view_radius,
+      mode: Atom.to_string(state.mode),
+      terrain: terrain
+    }
+  end
+
+  defp spawns_line(state) do
+    colonies =
+      state.colonies
+      |> Enum.sort_by(fn {id, _} -> id end)
+      |> Enum.map(fn {id, colony} ->
+        {sx, sy} = colony.oldest
+        %{id: id, name: colony.name, cell: [sx, sy]}
+      end)
+
+    %{kind: "spawns", colonies: colonies}
+  end
+
+  defp tick_line(entry) do
+    %{
+      kind: "tick",
+      tick: entry.tick,
+      actions:
+        Enum.map(entry.actions, fn action ->
+          {x, y} = action.cell
+          %{colony: action.colony, kind: Atom.to_string(action.kind), cell: [x, y]}
+        end),
+      diff: for({:cell, x, y, owner, fort} <- entry.events, do: [x, y, owner, fort]),
+      scores: entry.scores
+    }
+  end
+
+  defp final_line(state) do
+    %{kind: "final", tick: state.tick, scores: golden_scores(state)}
   end
 
   ## Grade

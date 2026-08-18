@@ -432,9 +432,12 @@ defmodule Slimes.WorldTest do
       tick(world)
       assert_receive {:obs, 1, _, _, _}
 
-      log = World.event_log(world)
-      assert log != []
-      assert Enum.any?(log, &match?({:cell, 1, 0, ^id, 0}, &1))
+      assert [%{tick: 1, actions: actions, events: events, scores: scores}] =
+               World.event_log(world)
+
+      assert [%{colony: ^id, kind: :expand, cell: {1, 0}}] = actions
+      assert Enum.any?(events, &match?({:cell, 1, 0, ^id, 0}, &1))
+      assert [%{id: ^id, cells: 2, alive: true}] = scores
     end
   end
 

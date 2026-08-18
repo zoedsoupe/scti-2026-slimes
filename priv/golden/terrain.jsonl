@@ -1,0 +1,4 @@
+{"mode":"tournament","kind":"config","base_seed":42,"tick_ms":1000,"grid":{"h":10,"w":10},"terrain":[[5,5,"forest"],[6,5,"water"]],"view_radius":3}
+{"kind":"spawns","colonies":[{"id":1,"name":"aurora","cell":[4,4]},{"id":2,"name":"nova","cell":[8,8]}]}
+{"tick":1,"diff":[[4,3,1,0],[8,7,2,0]],"kind":"tick","scores":[{"alive":true,"id":1,"cells":2},{"alive":true,"id":2,"cells":2}],"actions":[{"kind":"expand","cell":[4,3],"colony":1},{"kind":"expand","cell":[8,7],"colony":2}]}
+{"tick":1,"kind":"final","scores":[{"alive":true,"id":1,"cells":2},{"alive":true,"id":2,"cells":2}]}
