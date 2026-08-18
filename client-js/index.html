@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Slimes</title>
+  <style>
+    /* paleta nyxvamp veil */
+    :root {
+      --bg: #1E1E2E;
+      --elev: #2E2E3E;
+      --fg: #F5F5FF;
+      --muted: #6E6A86;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: ui-monospace, "SF Mono", Menlo, monospace;
+      font-size: 14px;
+    }
+    header {
+      display: flex;
+      align-items: baseline;
+      gap: 1rem;
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--elev);
+    }
+    h1 { font-size: 1.1rem; margin: 0; }
+    #status { color: var(--muted); }
+    #status.conectado { color: #ABE9B3; }
+    #status.conectando { color: #F8BD96; }
+    .bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      align-items: center;
+      padding: 0.75rem 1rem;
+      background: var(--elev);
+    }
+    .bar label { color: var(--muted); }
+    .bar input {
+      background: var(--bg);
+      color: var(--fg);
+      border: 1px solid var(--muted);
+      border-radius: 4px;
+      padding: 0.35rem 0.5rem;
+      font: inherit;
+      width: 14ch;
+    }
+    .bar input#server { width: 28ch; }
+    .bar button {
+      background: var(--bg);
+      color: var(--fg);
+      border: 1px solid var(--fg);
+      border-radius: 4px;
+      padding: 0.35rem 0.9rem;
+      font: inherit;
+      cursor: pointer;
+    }
+    .bar button:hover { background: var(--muted); }
+    .hint { color: var(--muted); font-size: 0.85em; }
+    main {
+      display: flex;
+      gap: 1rem;
+      padding: 1rem;
+      align-items: flex-start;
+    }
+    canvas {
+      background: var(--bg);
+      border: 1px solid var(--elev);
+      border-radius: 4px;
+      max-width: 100%;
+    }
+    aside {
+      background: var(--elev);
+      border-radius: 4px;
+      padding: 0.75rem 1rem;
+      min-width: 16rem;
+    }
+    aside h2 { font-size: 0.95rem; margin: 0 0 0.5rem; color: var(--muted); }
+    #scoreboard { width: 100%; border-collapse: collapse; }
+    #scoreboard td { padding: 0.25rem 0.4rem; }
+    #scoreboard tr.eu { outline: 1px solid var(--fg); }
+    #scoreboard tr.morta { color: var(--muted); }
+    .chip {
+      display: inline-block;
+      width: 0.9em;
+      height: 0.9em;
+      border-radius: 2px;
+      vertical-align: middle;
+    }
+    #log {
+      padding: 0 1rem 1rem;
+      color: var(--muted);
+      font-size: 0.85em;
+      max-height: 6rem;
+      overflow-y: auto;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Slimes</h1>
+    <span id="status">desconectado</span>
+  </header>
+
+  <div class="bar">
+    <label for="name">colônia</label>
+    <input id="name" value="aurora" maxlength="16" pattern="[a-z0-9-]{1,16}">
+    <label for="server">servidor</label>
+    <input id="server" value="local">
+    <button id="connect">conectar</button>
+    <span class="hint">"local" roda o simulador no navegador; servidor real: ws://&lt;ip&gt;:4000/ws</span>
+  </div>
+
+  <main>
+    <canvas id="grid" width="640" height="480"></canvas>
+    <aside>
+      <h2>Placar</h2>
+      <table id="scoreboard"></table>
+    </aside>
+  </main>
+
+  <div id="log"></div>
+
+  <script type="module" src="src/infra/app.js"></script>
+</body>
+</html>
