@@ -14,7 +14,7 @@ defmodule Slimes.WorldTest do
   #           optional :spawns (%{name => {x, y}}) and :terrain ([{x, y, atom}])
   #   World.join(world, name, handler_pid)
   #     :: {:ok, %{id:, name:, color:, width:, height:, tick_ms:, view_radius:, spawn:}}
-  #      | {:error, :bad_name}
+  #      | {:error, [%{code: :bad_name}]}
   #   World.watch(world, spectator_pid)
   #     :: {:ok, %{width:, height:, tick_ms:, cells: [{x, y, terrain, owner, fortified}]}}
   #   World.act(world, colony_id, %Act{})
@@ -93,16 +93,16 @@ defmodule Slimes.WorldTest do
     test "rejects the reserved name" do
       world = start_world()
 
-      assert {:error, :bad_name} = World.join(world, "spectator", self())
+      assert {:error, [%{code: :bad_name}]} = World.join(world, "spectator", self())
     end
 
     test "rejects invalid names" do
       world = start_world()
 
-      assert {:error, :bad_name} = World.join(world, "Aurora", self())
-      assert {:error, :bad_name} = World.join(world, "slime_lord", self())
-      assert {:error, :bad_name} = World.join(world, "abcdefghijklmnopq", self())
-      assert {:error, :bad_name} = World.join(world, "", self())
+      assert {:error, [%{code: :bad_name}]} = World.join(world, "Aurora", self())
+      assert {:error, [%{code: :bad_name}]} = World.join(world, "slime_lord", self())
+      assert {:error, [%{code: :bad_name}]} = World.join(world, "abcdefghijklmnopq", self())
+      assert {:error, [%{code: :bad_name}]} = World.join(world, "", self())
     end
 
     test "rejoining with a live name resumes the colony and repoints the handler" do
@@ -190,8 +190,8 @@ defmodule Slimes.WorldTest do
     end
 
     test "rejects cells outside the grid with bad_cell", %{world: w, id: id} do
-      assert {:error, :bad_cell} = World.act(w, id, act("a-1", :expand, 10, 0))
-      assert {:error, :bad_cell} = World.act(w, id, act("a-2", :expand, 0, 10))
+      assert {:error, [%{code: :bad_cell}]} = World.act(w, id, act("a-1", :expand, 10, 0))
+      assert {:error, [%{code: :bad_cell}]} = World.act(w, id, act("a-2", :expand, 0, 10))
     end
 
     test "rejects cells not adjacent to the colony with bad_cell", %{world: w, id: id, spawn: s} do
@@ -200,23 +200,23 @@ defmodule Slimes.WorldTest do
       fx = if(sx + 3 < 10, do: sx + 3, else: sx - 3)
       fy = if(sy + 3 < 10, do: sy + 3, else: sy - 3)
 
-      assert {:error, :bad_cell} = World.act(w, id, act("a-1", :expand, fx, fy))
+      assert {:error, [%{code: :bad_cell}]} = World.act(w, id, act("a-1", :expand, fx, fy))
     end
 
     test "rejects expand into an own cell with not_empty", %{world: w, id: id, spawn: {sx, sy}} do
-      assert {:error, :not_empty} = World.act(w, id, act("a-1", :expand, sx, sy))
+      assert {:error, [%{code: :not_empty}]} = World.act(w, id, act("a-1", :expand, sx, sy))
     end
 
     test "rejects attack into an empty cell with not_enemy", %{world: w, id: id, spawn: s} do
       {tx, ty} = neighbor_of(s, 10, 10)
 
-      assert {:error, :not_enemy} = World.act(w, id, act("a-1", :attack, tx, ty))
+      assert {:error, [%{code: :not_enemy}]} = World.act(w, id, act("a-1", :attack, tx, ty))
     end
 
     test "rejects fortify of a cell the colony does not own with not_self", %{world: w, id: id, spawn: s} do
       {tx, ty} = neighbor_of(s, 10, 10)
 
-      assert {:error, :not_self} = World.act(w, id, act("a-1", :fortify, tx, ty))
+      assert {:error, [%{code: :not_self}]} = World.act(w, id, act("a-1", :fortify, tx, ty))
     end
 
     test "fortify of an already fortified own cell is acked and wasted", %{world: w, id: id, spawn: {sx, sy}} do
@@ -235,7 +235,7 @@ defmodule Slimes.WorldTest do
       {:ok, %{id: a}} = World.join(world, "a", self())
       {:ok, _} = World.join(world, "b", spawnless())
 
-      assert {:error, :attacks_disabled} = World.act(world, a, act("a-1", :attack, 1, 0))
+      assert {:error, [%{code: :attacks_disabled}]} = World.act(world, a, act("a-1", :attack, 1, 0))
     end
 
     test "attacks_disabled is checked before cell validity" do
@@ -244,7 +244,7 @@ defmodule Slimes.WorldTest do
       {:ok, %{id: a}} = World.join(world, "a", self())
 
       # 9,9 is neither adjacent nor enemy: the mode answer must win
-      assert {:error, :attacks_disabled} = World.act(world, a, act("a-1", :attack, 9, 9))
+      assert {:error, [%{code: :attacks_disabled}]} = World.act(world, a, act("a-1", :attack, 9, 9))
     end
   end
 
@@ -295,7 +295,7 @@ defmodule Slimes.WorldTest do
       # simulate the resolution window being closed
       :sys.replace_state(w, &%{&1 | accepting: false})
 
-      assert {:error, :too_late} = World.act(w, id, act("a-1", :expand, tx, ty))
+      assert {:error, [%{code: :too_late}]} = World.act(w, id, act("a-1", :expand, tx, ty))
 
       :sys.replace_state(w, &%{&1 | accepting: true})
 

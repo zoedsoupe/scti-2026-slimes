@@ -8,7 +8,7 @@ defmodule SlimesWeb.Router do
   plug(:match)
   plug(:dispatch)
 
-  get "/" do
+  get "/ws" do
     conn
     |> WebSockAdapter.upgrade(SocketHandler, [], timeout: 1_000)
     |> halt()

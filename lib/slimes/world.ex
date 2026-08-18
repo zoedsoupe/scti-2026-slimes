@@ -45,7 +45,8 @@ defmodule Slimes.World do
   ## API pública
 
   def start_link(opts) do
-    GenServer.start_link(__MODULE__, opts)
+    {name, opts} = Keyword.pop(opts, :name)
+    GenServer.start_link(__MODULE__, opts, name: name)
   end
 
   @doc "Entrada de colônia. Retorna os dados do WELCOME ou {:error, :bad_name}."
@@ -89,10 +90,10 @@ defmodule Slimes.World do
   def handle_call({:join, name, pid}, _from, state) do
     cond do
       name == "spectator" ->
-        {:reply, {:error, :bad_name}, state}
+        {:reply, err(:bad_name, :name, "nome reservado"), state}
 
       not Regex.match?(@name_regex, name) ->
-        {:reply, {:error, :bad_name}, state}
+        {:reply, err(:bad_name, :name, "nome invalido"), state}
 
       colony = find_colony_by_name(state, name) ->
         if colony.status == :alive do
@@ -140,7 +141,8 @@ defmodule Slimes.World do
             {:reply, ack, state}
           else
             # chegou após a resolução: enfileirada para o próximo tick
-            {:reply, {:error, :too_late}, state}
+            {:reply, err(:too_late, "tick #{state.tick} resolvido; acao enfileirada para #{state.tick + 1}"),
+             state}
           end
 
         {:error, _} = error ->
@@ -305,8 +307,12 @@ defmodule Slimes.World do
 
   ## Validação de ações, na ordem do spec
 
+  # erros seguem o formato do decoder em Slimes.Message:
+  # %{code, key, detail}, um por falha, para o chamador decidir o roteamento
+  defp err(code, key \\ nil, detail), do: {:error, [%{code: code, key: key, detail: detail}]}
+
   defp validate(state, colony_id, %Act{kind: :pass}) do
-    if state.colonies[colony_id], do: :ok, else: {:error, :bad_message}
+    if state.colonies[colony_id], do: :ok, else: err(:bad_message, "colonia desconhecida")
   end
 
   defp validate(state, colony_id, %Act{} = action) do
@@ -315,17 +321,17 @@ defmodule Slimes.World do
 
     cond do
       is_nil(colony) ->
-        {:error, :bad_message}
+        err(:bad_message, "colonia desconhecida")
 
       # modo antes de validade de célula: resposta consistente no cooperativo
       action.kind == :attack and state.mode == :cooperative ->
-        {:error, :attacks_disabled}
+        err(:attacks_disabled, "ataques desabilitados no modo cooperativo")
 
       x < 0 or y < 0 or x >= state.width or y >= state.height ->
-        {:error, :bad_cell}
+        err(:bad_cell, "fora da grade")
 
       not reachable?(state, colony_id, x, y) ->
-        {:error, :bad_cell}
+        err(:bad_cell, "celula nao adjacente a colonia")
 
       true ->
         validate_ownership(state, colony_id, action, x, y)
@@ -333,17 +339,19 @@ defmodule Slimes.World do
   end
 
   defp validate_ownership(state, _colony_id, %{kind: :expand}, x, y) do
-    if cell_at(state, x, y).owner == 0, do: :ok, else: {:error, :not_empty}
+    if cell_at(state, x, y).owner == 0, do: :ok, else: err(:not_empty, "celula ocupada")
   end
 
   defp validate_ownership(state, colony_id, %{kind: :attack}, x, y) do
     owner = cell_at(state, x, y).owner
 
-    if owner != 0 and owner != colony_id, do: :ok, else: {:error, :not_enemy}
+    if owner != 0 and owner != colony_id, do: :ok, else: err(:not_enemy, "celula nao e inimiga")
   end
 
   defp validate_ownership(state, colony_id, %{kind: :fortify}, x, y) do
-    if cell_at(state, x, y).owner == colony_id, do: :ok, else: {:error, :not_self}
+    if cell_at(state, x, y).owner == colony_id,
+      do: :ok,
+      else: err(:not_self, "celula nao pertence a colonia")
   end
 
   # célula alcançável: da própria colônia ou adjacente a uma célula dela
