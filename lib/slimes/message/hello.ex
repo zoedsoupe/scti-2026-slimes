@@ -34,10 +34,10 @@ defmodule Slimes.Message.Hello do
   end
 
   defp with_role(%{role: "colony", name: "spectator"}),
-    do: {:error, "bad_name", []}
+    do: {:error, "nome reservado", []}
 
   defp with_role(%{role: "colony"}) do
-    {:ok, {:required, {:string, regex: ~r/^[a-z0-9-]{1,16}$/, error: "bad_name"}}}
+    {:ok, {:required, {:string, regex: ~r/^[a-z0-9-]{1,16}$/, error: "nome inválido"}}}
   end
 
   defp with_role(%{role: "spectator"}), do: {:ok, nil}

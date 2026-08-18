@@ -138,22 +138,32 @@ defmodule Slimes.Message do
   defp humanize_error([%Peri.Error{} | _] = errors), do: Enum.map(errors, &error_to_map/1)
 
   defp humanize_error(:bad_version),
-    do: [%{code: :bad_version, key: :version, detail: "unsupported protocol version"}]
-
-  defp humanize_error(:bad_name), do: [%{code: :bad_name, key: :name, detail: "reserved name"}]
+    do: [%{code: :bad_version, key: :version, detail: "versão do protocolo não suportada"}]
 
   defp humanize_error(:bad_message),
-    do: [%{code: :bad_message, key: nil, detail: "malformed line"}]
+    do: [%{code: :bad_message, key: nil, detail: "linha malformada"}]
 
-  defp error_to_map(%Peri.Error{message: msg, key: key}) do
-    %{code: code_for(key, msg), key: key, detail: msg}
+  defp error_to_map(%Peri.Error{message: msg, key: key, content: content}) do
+    %{code: code_for(key, content), key: key, detail: detail_for(content, msg)}
   end
 
-  defp code_for(:name, _msg), do: :bad_name
+  defp code_for(:name, _content), do: :bad_name
 
-  defp code_for(_key, msg) when is_binary(msg) do
-    if msg =~ "greater", do: :bad_cell, else: :bad_message
-  end
+  # coercion failures also carry a `value`, so they must match first:
+  # source and target in the content mark a value that never became a number
+  defp code_for(_key, %{source: _source, target: _target}), do: :bad_message
+
+  # a `value` in the content marks a bound violation (gte), which only the
+  # coordinate schemas declare: negative coordinate means off-grid cell
+  defp code_for(key, %{value: _value}) when key in [:x, :y], do: :bad_cell
+
+  defp code_for(_key, _content), do: :bad_message
+
+  # Peri reports coercion failures in english with no error: hook; source and
+  # target in the content mark them, and the wire detail is ours to translate
+  defp detail_for(%{source: _source, target: _target}, _msg), do: "número inválido"
+
+  defp detail_for(_content, msg), do: msg
 
   defp tokenize(str) do
     str

@@ -233,6 +233,28 @@ defmodule Slimes.MessageTest do
     end
   end
 
+  describe "decode/1 error details" do
+    test "details are in portuguese" do
+      assert {:error, [%{code: :bad_version, detail: "versão do protocolo não suportada"}]} =
+               Message.decode_message("HELLO v2 aurora-k3f9-1 colony aurora")
+
+      assert {:error, [%{code: :bad_message, detail: "linha malformada"}]} =
+               Message.decode_message("ACTN")
+
+      assert {:error, [%{code: :bad_name, detail: "nome reservado"}]} =
+               Message.decode_message("HELLO v1 aurora-k3f9-1 colony spectator")
+
+      assert {:error, [%{code: :bad_name, detail: "nome inválido"}]} =
+               Message.decode_message("HELLO v1 aurora-k3f9-1 colony Aurora")
+
+      assert {:error, [%{code: :bad_cell, detail: "coordenada fora da grade"} | _]} =
+               Message.decode_message("ACT aurora-k3f9-17 expand -1 7")
+
+      assert {:error, [%{code: :bad_message, key: :x, detail: "número inválido"} | _]} =
+               Message.decode_message("ACT aurora-k3f9-17 expand x 7")
+    end
+  end
+
   describe "decode/1 line handling" do
     test "trims surrounding whitespace" do
       assert {:ok, %Ping{ref: "aurora-k3f9-30"}} =

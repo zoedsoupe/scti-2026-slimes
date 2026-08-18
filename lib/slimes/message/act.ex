@@ -35,7 +35,7 @@ defmodule Slimes.Message.Act do
   defp with_coords(%{kind: kind}) when kind in ["pass", :pass], do: {:ok, nil}
 
   defp with_coords(_) do
-    {:ok, {:required, {:coerce, {:integer, gte: 0}}}}
+    {:ok, {:required, {:coerce, {:integer, gte: 0, error: "coordenada fora da grade"}}}}
   end
 
   def parse(attrs) do
