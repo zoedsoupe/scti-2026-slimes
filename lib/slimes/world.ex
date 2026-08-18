@@ -17,6 +17,8 @@ defmodule Slimes.World do
 
   use GenServer
 
+  require Logger
+
   alias Slimes.Message.Act
   alias Slimes.World.Resolve
 
@@ -98,6 +100,7 @@ defmodule Slimes.World do
       colony = find_colony_by_name(state, name) ->
         if colony.status == :alive do
           # reconexão: retoma a colônia e aponta o handler para o novo socket
+          Logger.info("colonia #{colony.id} (#{name}) reconectou")
           colony = %{colony | handler: pid}
           state = put_in(state.colonies[colony.id], colony)
           {:reply, {:ok, welcome_info(state, colony)}, state}
@@ -114,6 +117,8 @@ defmodule Slimes.World do
   end
 
   def handle_call({:watch, pid}, _from, state) do
+    Logger.info("espectador conectado (#{length(state.spectators) + 1} no total)")
+
     snapshot = %{
       width: state.width,
       height: state.height,
@@ -177,6 +182,14 @@ defmodule Slimes.World do
 
     {new_state, events} = Resolve.resolve(resolver_state, actions, rng)
 
+    Logger.debug(
+      "tick #{next} resolvido: #{length(actions)} acoes, #{length(events)} eventos"
+    )
+
+    for {:eliminated, id} <- events do
+      Logger.info("colonia #{id} (#{new_state.colonies[id].name}) eliminada no tick #{next}")
+    end
+
     state = %{
       state
       | tick: next,
@@ -202,6 +215,8 @@ defmodule Slimes.World do
     # o spawn é calculado pela regra normal
     {fixed, state} = get_and_update_in(state.fixed_spawns, &Map.pop(&1, name))
     spawn = fixed || spawn_cell(state)
+
+    Logger.info("colonia #{id} (#{name}) entrou em #{inspect(spawn)}")
 
     colony = %{
       id: id,
