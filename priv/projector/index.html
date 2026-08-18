@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Slimes: projetor</title>
+  <style>
+    body {
+      background: #1E1E2E;
+      color: #F5F5FF;
+      font-family: system-ui, sans-serif;
+      margin: 0;
+      display: flex;
+      gap: 16px;
+      padding: 16px;
+    }
+    h1 { font-size: 20px; margin: 0 0 8px; }
+    #status { color: #6E6A86; font-size: 14px; }
+    #tick { font-size: 18px; margin: 8px 0; }
+    #grid { background: #1E1E2E; }
+    #sidebar { min-width: 200px; }
+    #scoreboard .row { padding: 4px 0; font-size: 16px; }
+    #scoreboard .row.dead { color: #6E6A86; }
+    .chip {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border-radius: 3px;
+      margin-right: 6px;
+    }
+  </style>
+</head>
+<body>
+  <div>
+    <h1>Slimes</h1>
+    <canvas id="grid" width="720"></canvas>
+  </div>
+  <div id="sidebar">
+    <div id="status">conectando...</div>
+    <div id="tick"></div>
+    <div id="scoreboard"></div>
+  </div>
+  <script type="module" src="app.js"></script>
+</body>
+</html>

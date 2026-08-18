@@ -26,7 +26,7 @@ O servidor sobe com Bandit e expõe:
 - `GET /kit.zip`: kit do cliente.
 - arquivos estáticos do projetor em `projector/`.
 
-Modo cooperativo (ataques desabilitados): rode com a flag `--no-attacks`. O padrão é o modo torneio.
+Modo cooperativo (ataques desabilitados): `mix run --no-halt -- --no-attacks` (a flag vai depois do `--`). O padrão é o modo torneio.
 
 ## Protocolo
 
@@ -54,3 +54,31 @@ mix test                      # suíte normal
 mix test --include golden     # emite priv/golden/*.jsonl para paridade com o simulador
 mix replay caminho/log.jsonl  # reexecuta um log de partida e imprime o placar final
 ```
+
+## Como rodar o cliente JavaScript
+
+Não precisa de Node nem de build. Da raiz do repositório:
+
+```sh
+python3 -m http.server
+```
+
+Abra `http://localhost:8000/client-js/`. No campo "servidor", `local` usa o simulador em processo (funciona sem rede nenhuma, com dois bots); para jogar contra o servidor de verdade, use `ws://<ip-do-mac>:4000/ws`. Módulos ES não carregam via `file://`, por isso o `http.server`.
+
+Os testes do cliente rodam na página `http://localhost:8000/client-js/test/` ou, se houver Node instalado, com `node client-js/test/run_node.js` (a mesma suíte, incluindo a paridade com `priv/golden/`).
+
+O projetor (visão de espectador para a sala) é servido pelo próprio servidor em `http://<ip-do-mac>:4000/`.
+
+## Runbook do dia
+
+Para quem for operar a sala, sem precisar de contexto do projeto:
+
+1. **Antes de tudo**: no Mac do instrutor, `mix deps.get && iex -S mix`. O shell fica aberto de propósito: na demo final dá para inspecionar o estado ao vivo (`:sys.get_state(Slimes.World)` mostra a tabela de deduplicação).
+2. Anote o IP do Mac (`ipconfig getifaddr en0`) e escreva no quadro: `ws://<ip>:4000/ws` para os clientes e `http://<ip>:4000/` para o projetor. Abra o projetor na TV/projetor da sala.
+3. **Fase cooperativa**: suba o servidor com `iex -S mix run --no-halt -- --no-attacks` (a flag vai depois do `--`). Nesse modo o servidor rejeita `attack` com `NACK attacks_disabled`. Para o torneio, reinicie sem a flag, com `iex -S mix`.
+4. **Reiniciar é partida nova.** Não existe recuperação de estado e isso é deliberado: partidas são curtas e o formato de torneio espera várias rodadas. Se um log importar, salve `curl http://localhost:4000/debug/log > partida.jsonl` **antes** de reiniciar. Depois dá para reexecutar com `mix replay partida.jsonl`.
+5. **Wifi da universidade falhou?** Ligue o hotspot do celular e conecte o Mac e as máquinas da sala nele. Se a rede inteira morrer, o minicurso continua: cada dupla desenvolve contra o simulador local (`local` no campo servidor), e só o torneio é afetado.
+6. **Para reproduzir uma partida** (mesma seed, mesmos spawns): suba com `SLIMES_SEED=42 iex -S mix`. Sem a variável, a seed é sorteada a cada boot.
+7. O kit dos alunos (`student-kit.zip`) é servido em `http://<ip>:4000/kit.zip`, para distribuição não depender de internet.
+
+Antes do evento, siga o checklist em `docs/CHECKLIST.md` (regenerar goldens, teste de carga com 20 clientes, zip do kit, teste do hotspot).

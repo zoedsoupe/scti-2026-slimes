@@ -4,9 +4,15 @@ defmodule SlimesWeb.Router do
   alias SlimesWeb.SocketHandler
 
   plug(Plug.Logger)
-  plug(Plug.Static, at: "/", from: {:slimes, "projector"})
+  plug(Plug.Static, at: "/", from: {:slimes, "priv/projector"})
   plug(:match)
   plug(:dispatch)
+
+  get "/" do
+    conn
+    |> put_resp_header("content-type", "text/html")
+    |> send_file(200, Application.app_dir(:slimes, "priv/projector/index.html"))
+  end
 
   get "/ws" do
     conn
