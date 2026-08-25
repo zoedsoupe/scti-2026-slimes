@@ -6,6 +6,7 @@ Refs: <nome>-<sessão>-<n>, sessão de 4 chars gerada uma vez por processo.
 """
 
 import random
+import re
 import string
 
 # --- encode ---------------------------------------------------------------
@@ -47,12 +48,15 @@ def encode_ping(ref):
 # --- parse ----------------------------------------------------------------
 
 
+_INT = re.compile(r"^-?\d+$")
+
+
 def _int(tok):
-    # inteiros base-10; qualquer outra coisa torna a linha malformada
-    try:
-        return int(tok)
-    except (TypeError, ValueError):
+    # inteiros base-10; regex igual à do JS, porque int() do Python
+    # aceita "+5" e espaços em volta, e isso não pode passar
+    if tok is None or not _INT.match(tok):
         return None
+    return int(tok)
 
 
 def _tok(t, i):
@@ -154,12 +158,24 @@ def _parse_diff(t):
     return ("ok", {"type": "diff", "ref": _tok(t, 1), "tick": tick, "changes": changes})
 
 
+def parse_observation(line):
+    """E1: uma linha OBS crua -> ("ok", obs) | ("error", motivo).
+
+    Parse-don't-validate: ignora tokens extras no final, rejeita linha
+    malformada com um motivo, nunca lança exceção.
+    """
+    t = line.split(" ")
+    if t[0] != "OBS":
+        return ("error", f"tipo inesperado {t[0]}")
+    return _parse_observation(t)
+
+
 def parse_line(line):
     t = line.split(" ")
     kind = t[0]
 
     if kind == "OBS":
-        return _parse_observation(t)
+        return parse_observation(line)
 
     if kind == "WELCOME":
         return _parse_welcome(t)
