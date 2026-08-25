@@ -23,7 +23,7 @@ O servidor sobe com Bandit e expõe:
 
 - `GET /ws`: endpoint WebSocket do protocolo do jogo.
 - `GET /debug/log`: log de eventos da partida em JSONL.
-- `GET /kit.zip`: kit do cliente.
+- `GET /kit.zip`: kit do cliente (`client-js/kit/` mais `docs/PROTOCOL.md` e `docs/WORKSHOP.md`, empacotado por `./scripts/build_kit.sh`).
 - arquivos estáticos do projetor em `projector/`.
 
 Modo cooperativo (ataques desabilitados): `mix run --no-halt -- --no-attacks` (a flag vai depois do `--`). O padrão é o modo torneio.

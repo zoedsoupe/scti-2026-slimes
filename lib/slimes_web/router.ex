@@ -28,8 +28,8 @@ defmodule SlimesWeb.Router do
 
   get "/kit.zip" do
     conn
-    |> put_resp_header("content-type", "text/plain")
-    |> send_resp(200, "here are your kit!")
+    |> put_resp_header("content-type", "application/zip")
+    |> send_file(200, Application.app_dir(:slimes, "priv/student-kit.zip"))
   end
 
   match _ do
