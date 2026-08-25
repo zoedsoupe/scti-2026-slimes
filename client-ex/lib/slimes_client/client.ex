@@ -49,13 +49,21 @@ defmodule SlimesClient.Client do
 
   @impl true
   def handle_disconnect(%{reason: reason}, state) do
-    IO.puts("desconectado: #{inspect(reason)}")
-    {:ok, state}
+    # {:reconnect, state} reabre o socket; handle_connect manda um HELLO
+    # novo com segmento de sessão novo, então os refs nunca colidem
+    IO.puts("desconectado: #{inspect(reason)}, reconectando")
+    {:reconnect, state}
   end
 
-  defp dispatch(%{type: "welcome"} = msg, state) do
+  defp dispatch(%{type: "welcome", role: "colony"} = msg, state) do
     IO.puts("entrei como #{msg.name} (id #{msg.id}), cor ##{msg.color}")
     {:ok, %{state | my_id: msg.id}}
+  end
+
+  # welcome de espectador não tem name/id/color: só registra e segue
+  defp dispatch(%{type: "welcome"}, state) do
+    IO.puts("welcome de espectador, ignorado")
+    {:ok, state}
   end
 
   defp dispatch(%{type: "obs"} = msg, state) do
@@ -82,9 +90,14 @@ defmodule SlimesClient.Client do
   defp dispatch(%{type: "ack"} = msg, state),
     do: {:ok, %{state | pending: Pending.on_ack(state.pending, msg.ref)}}
 
+  defp dispatch(%{type: "nack", code: "duplicate_ref"}, state) do
+    # informacional: o ACK original chega em seguida, mantém o pendente
+    {:ok, state}
+  end
+
   defp dispatch(%{type: "nack"} = msg, state) do
     IO.puts("NACK #{msg.code}: #{msg.detail}")
-    {:ok, state}
+    {:ok, %{state | pending: Pending.on_ack(state.pending, msg.ref)}}
   end
 
   defp dispatch(%{type: "err"} = msg, state) do

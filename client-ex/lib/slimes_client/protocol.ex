@@ -76,7 +76,17 @@ defmodule SlimesClient.Protocol do
     end
   end
 
-  defp parse_observation(t) do
+  @doc "E1: uma linha OBS crua -> observação de domínio"
+  def parse_observation(line) when is_binary(line) do
+    t = String.split(line, " ")
+
+    case hd(t) do
+      "OBS" -> parse_observation_tokens(t)
+      other -> {:error, "tipo inesperado #{other}"}
+    end
+  end
+
+  defp parse_observation_tokens(t) do
     with {:ok, tick} <- int(tok(t, 2)),
          {:ok, scores_tick} <- int(tok(t, 4)),
          status when status in ["alive", "dead"] <- tok(t, 3),
@@ -213,7 +223,7 @@ defmodule SlimesClient.Protocol do
 
     case hd(t) do
       "OBS" ->
-        parse_observation(t)
+        parse_observation(line)
 
       "WELCOME" ->
         parse_welcome(t)
