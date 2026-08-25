@@ -1,6 +1,8 @@
 package main
 
 // Loop do cliente: conecta, cumprimenta, e a cada OBS decide e age.
+// Em erro de leitura ou fechamento, reconecta com o mesmo nome apos 1s
+// (o servidor retoma colonias vivas pelo nome).
 //
 // Uso:
 //
@@ -8,11 +10,12 @@ package main
 //	SLIMES_URL=ws://localhost:4000/ws SLIMES_NAME=aurora go run .
 
 import (
+	"context"
 	"fmt"
-	"log"
 	"os"
+	"time"
 
-	"github.com/gorilla/websocket"
+	"github.com/coder/websocket"
 )
 
 func getenv(key, fallback string) string {
@@ -26,28 +29,39 @@ func main() {
 	url := getenv("SLIMES_URL", "ws://localhost:4000/ws")
 	name := getenv("SLIMES_NAME", "goslime")
 
-	conn, _, err := websocket.DefaultDialer.Dial(url, nil)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer conn.Close()
-
-	send := func(line string) {
-		if err := conn.WriteMessage(websocket.TextMessage, []byte(line)); err != nil {
-			log.Fatal(err)
+	for {
+		if err := run(url, name); err != nil {
+			fmt.Printf("conexao caiu: %v\n", err)
 		}
+		time.Sleep(1 * time.Second)
+	}
+}
+
+func run(url, name string) error {
+	ctx := context.Background()
+
+	conn, _, err := websocket.Dial(ctx, url, nil)
+	if err != nil {
+		return err
+	}
+	defer conn.Close(websocket.StatusNormalClosure, "fim")
+
+	send := func(line string) error {
+		return conn.Write(ctx, websocket.MessageText, []byte(line))
 	}
 
 	refs := NewRefs(name)
 	myID := 0
 	pending := map[string]PendingEntry{}
 
-	send(EncodeHello(refs.Next(), "colony", name))
+	if err := send(EncodeHello(refs.Next(), "colony", name)); err != nil {
+		return err
+	}
 
 	for {
-		_, data, err := conn.ReadMessage()
+		_, data, err := conn.Read(ctx)
 		if err != nil {
-			log.Fatal(err)
+			return err
 		}
 		msg, err := ParseLine(string(data))
 		if err != nil {
@@ -64,7 +78,9 @@ func main() {
 			pending, effects = OnTimeout(pending, msg.Tick)
 			for _, e := range effects {
 				if !e.Drop {
-					send(e.Line)
+					if err := send(e.Line); err != nil {
+						return err
+					}
 				}
 			}
 			if msg.Status == "alive" && myID != 0 {
@@ -72,7 +88,9 @@ func main() {
 				ref := refs.Next()
 				line := EncodeAction(action, ref)
 				pending = AddPending(pending, ref, line, msg.Tick)
-				send(line)
+				if err := send(line); err != nil {
+					return err
+				}
 			}
 		case "ack":
 			pending = OnAck(pending, msg.Ref)

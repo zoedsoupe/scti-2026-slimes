@@ -46,9 +46,12 @@ func dist(a Cell, b *Cell) int {
 	if b == nil {
 		return 0
 	}
-	d := a.X - b.X + a.Y - b.Y
-	if d < 0 {
-		return -d
+	return abs(a.X-b.X) + abs(a.Y-b.Y)
+}
+
+func abs(n int) int {
+	if n < 0 {
+		return -n
 	}
-	return d
+	return n
 }

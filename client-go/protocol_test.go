@@ -66,6 +66,8 @@ func TestMalformedNeverPanics(t *testing.T) {
 		"OBS srv-97 97 undead 97",
 		"WELCOME srv-0 3 aurora 96CDFB 60 40 1000 3",
 		"ACK ref notanumber",
+		"NACK aurora-k3f9-17",
+		"ERR",
 	} {
 		if _, err := ParseLine(line); err == nil {
 			t.Fatalf("esperava erro para %q", line)

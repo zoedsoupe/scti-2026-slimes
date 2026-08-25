@@ -156,6 +156,15 @@ func parseCellList(tok string) ([]Cell, bool) {
 	return cells, true
 }
 
+// E1: uma linha OBS crua -> observação de domínio.
+func ParseObservation(line string) (Message, error) {
+	t := strings.Split(line, " ")
+	if t[0] != "OBS" {
+		return Message{}, fmt.Errorf("tipo inesperado %s", t[0])
+	}
+	return parseObservation(t)
+}
+
 func parseObservation(t []string) (Message, error) {
 	tick, ok1 := atoi(tok(t, 2))
 	scoresTick, ok2 := atoi(tok(t, 4))
@@ -265,7 +274,7 @@ func ParseLine(line string) (Message, error) {
 	t := strings.Split(line, " ")
 	switch t[0] {
 	case "OBS":
-		return parseObservation(t)
+		return ParseObservation(line)
 	case "WELCOME":
 		return parseWelcome(t)
 	case "ACK":
@@ -275,12 +284,18 @@ func ParseLine(line string) (Message, error) {
 		}
 		return Message{Type: "ack", Ref: tok(t, 1), Tick: tick}, nil
 	case "NACK":
+		if len(t) < 3 {
+			return Message{}, fmt.Errorf("nack malformado")
+		}
 		return Message{
-			Type: "nack", Ref: tok(t, 1), Code: tok(t, 2), Detail: strings.Join(t[3:], " "),
+			Type: "nack", Ref: t[1], Code: t[2], Detail: strings.Join(t[3:], " "),
 		}, nil
 	case "ERR":
+		if len(t) < 3 {
+			return Message{}, fmt.Errorf("err malformado")
+		}
 		return Message{
-			Type: "err", Ref: tok(t, 1), Code: tok(t, 2), Detail: strings.Join(t[3:], " "),
+			Type: "err", Ref: t[1], Code: t[2], Detail: strings.Join(t[3:], " "),
 		}, nil
 	case "SCORE":
 		return parseScore(t)
