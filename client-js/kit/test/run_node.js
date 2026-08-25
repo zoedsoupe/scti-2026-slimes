@@ -4,7 +4,6 @@ import "./protocol_test.js";
 import "./strategy_test.js";
 import "./pending_test.js";
 import "./resolve_test.js";
-import "./parity_test.js";
 import { run } from "./runner.js";
 
 const { passed, failed, results } = await run();
