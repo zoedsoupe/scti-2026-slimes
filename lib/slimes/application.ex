@@ -17,7 +17,7 @@ defmodule Slimes.Application do
 
     children = [
       {Slimes.World, world_opts},
-      {Bandit, plug: SlimesWeb.Router}
+      {Bandit, plug: SlimesWeb.Router, scheme: :http, ip: {0, 0, 0, 0}, port: 4000}
     ]
 
     opts = [strategy: :one_for_one, name: Slimes.Supervisor]
