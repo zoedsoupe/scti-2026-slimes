@@ -1,6 +1,9 @@
 """Helpers puros sobre uma observação (a visão que chega a cada tick).
 
 Nada aqui conhece socket ou rede.
+
+Infraestrutura do kit, pronta e testada: não modifique este arquivo.
+Use estes helpers na sua estratégia (E3).
 """
 
 

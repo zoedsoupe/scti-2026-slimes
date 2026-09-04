@@ -3,6 +3,9 @@
 Regra do PROTOCOL.md: tokens extras no final são ignorados (leitor
 tolerante), linha malformada vira ("error", reason) e nunca lança exceção.
 Refs: <nome>-<sessão>-<n>, sessão de 4 chars gerada uma vez por processo.
+
+Os exercícios E1 e E2 moram aqui: mexa só nas duas funções marcadas com
+TODO. O resto do arquivo é infraestrutura pronta, não modifique.
 """
 
 import random
@@ -73,25 +76,15 @@ def encode_hello(ref, role, name=None):
     return f"HELLO v1 {ref} colony {name}"
 
 
+# E2: ação de domínio -> linha de protocolo com ref correto.
+# TODO E2: implemente. O formato é:
+#   ACT <ref> <kind> <x> <y>   para expand, attack e fortify
+#   ACT <ref> pass             para pass (sem coordenadas)
+# A ação de domínio é {"kind": "expand" | "attack" | "fortify", "x": x, "y": y}
+# ou {"kind": "pass"}.
+# Enquanto o stub estiver aqui a sua colônia só passa a vez.
 def encode_action(action, ref):
-    """Codifica uma ação de domínio como linha ACT.
-
-    Parâmetros:
-        action: {"kind": "expand" | "attack" | "fortify", "x", "y"}
-            ou {"kind": "pass"}.
-        ref: ref gerado por Refs.next().
-
-    Devolve:
-        a linha pronta para enviar; pass não leva coordenadas.
-
-    >>> encode_action({"kind": "expand", "x": 1, "y": 2}, "r-1")
-    'ACT r-1 expand 1 2'
-    >>> encode_action({"kind": "pass"}, "r-4")
-    'ACT r-4 pass'
-    """
-    if action["kind"] == "pass":
-        return f"ACT {ref} pass"
-    return f"ACT {ref} {action['kind']} {action['x']} {action['y']}"
+    return f"ACT {ref} pass"
 
 
 def encode_ping(ref):
@@ -152,20 +145,18 @@ def _cell_list(tok):
     return None if None in cells else cells
 
 
-def _parse_observation(t):
-    tick, scores_tick = _int(_tok(t, 2)), _int(_tok(t, 4))
-    if tick is None or scores_tick is None:
-        return ("error", "tick ausente ou invalido")
-    status = _tok(t, 3)
-    if status not in ("alive", "dead"):
-        return ("error", f"status invalido {status}")
-    cells = _cell_list(_tok(t, 5))
-    if cells is None:
-        return ("error", "lista de celulas malformada")
-    return ("ok", {
-        "type": "obs", "ref": _tok(t, 1), "tick": tick,
-        "status": status, "scores_tick": scores_tick, "cells": cells,
-    })
+# E1: uma linha OBS crua -> observação de domínio.
+# TODO E1: implemente. O formato da linha é:
+#   OBS <ref> <tick> <status> <scores_tick> <celulas>
+# status é "alive" ou "dead"; celulas é a lista separada por ";"
+# (parse_cell e _cell_list acima já existem, use-as). Devolva:
+#   ("ok", {"type": "obs", "ref": ref, "tick": tick, "status": status,
+#           "scores_tick": scores_tick, "cells": cells})
+# ou ("error", "motivo"). Linha malformada vira ("error", ...), nunca
+# exceção. Tokens extras no final são ignorados (é o que salva o seu
+# cliente no drill da v2).
+def parse_observation(line):
+    return ("error", "TODO E1: implemente parse_observation")
 
 
 def _parse_welcome(t):
@@ -227,34 +218,6 @@ def _parse_diff(t):
             return ("error", "diff malformado")
         changes.append({"x": x, "y": y, "owner": owner, "fortified": fortified})
     return ("ok", {"type": "diff", "ref": _tok(t, 1), "tick": tick, "changes": changes})
-
-
-def parse_observation(line):
-    """E1: uma linha OBS crua -> ("ok", obs) | ("error", motivo).
-
-    Parse-don't-validate: ignora tokens extras no final, rejeita linha
-    malformada com um motivo, nunca lança exceção.
-
-    Parâmetros:
-        line: a linha crua no formato
-            "OBS <ref> <tick> <status> <scores_tick> <celulas>".
-
-    Devolve:
-        ("ok", {"type": "obs", "ref", "tick", "status", "scores_tick",
-        "cells"}) ou ("error", motivo).
-
-    >>> tag, obs = parse_observation("OBS srv-97 97 alive 97 9,5,plain,0,0")
-    >>> tag
-    'ok'
-    >>> obs["tick"]
-    97
-    >>> parse_observation("OBS srv-1 alive 1")[0]
-    'error'
-    """
-    t = line.split(" ")
-    if t[0] != "OBS":
-        return ("error", f"tipo inesperado {t[0]}")
-    return _parse_observation(t)
 
 
 def parse_line(line):

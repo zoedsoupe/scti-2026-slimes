@@ -2,6 +2,8 @@
 
 pending: dict ref -> {"line", "tick", "retries"}. Nada aqui toca no socket:
 on_timeout devolve o que fazer (retry ou drop) e a borda executa.
+
+Infraestrutura do kit, pronta e testada: não modifique este arquivo.
 """
 
 BUDGET = 3  # tentativas máximas por ref

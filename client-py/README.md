@@ -22,7 +22,7 @@ A única dependência é `websockets` (API asyncio).
 python3 -m unittest discover -v
 ```
 
-Os testes cobrem o parser e o encode (E1, E2), a estratégia (E3) e a política de retry (E4).
+Os testes cobrem o parser e o encode (E1, E2), a estratégia (E3) e a política de retry da infraestrutura.
 
 ## Conectar no servidor real
 
@@ -40,4 +40,4 @@ O servidor retoma uma colônia viva pelo nome, então reconectar com o mesmo `SL
 
 ## O contrato
 
-O exercício (E1 a E4) está descrito em `../docs/PROTOCOL.md`, que no zip do kit fica ao lado desta pasta. Leia ele antes de mexer em `decide.py`, que é o único arquivo que você precisa editar para jogar.
+O exercício (E1 a E3) está descrito em `../docs/PROTOCOL.md`, que no zip do kit fica ao lado desta pasta. Leia ele antes de mexer em `decide.py`, que é o único arquivo que você precisa editar para jogar.
