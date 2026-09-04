@@ -32,8 +32,19 @@ defmodule SlimesClient.Client do
       |> Map.put(:my_id, nil)
       |> Map.put(:pending, %{})
 
+    # WebSockex não aceita reply em handle_connect: manda para si mesmo
+    # e responde no handle_info
+    send(self(), {:hello, ref})
+    {:ok, state}
+  end
+
+  @impl true
+  def handle_info({:hello, ref}, %{name: name} = state) do
     {:reply, {:text, Protocol.encode_hello(ref, "colony", name)}, state}
   end
+
+  @impl true
+  def handle_cast({:text, _line} = frame, state), do: {:reply, frame, state}
 
   @impl true
   def handle_frame({:text, line}, state) do
@@ -68,23 +79,27 @@ defmodule SlimesClient.Client do
 
   defp dispatch(%{type: "obs"} = msg, state) do
     {pending, effects} = Pending.on_timeout(state.pending, msg.tick)
-    frames = for %{line: line} <- effects, do: {:text, line}
 
-    {frames, pending, state} =
-      if msg.status == "alive" and state.my_id do
-        action = Decide.decide(msg, state.my_id)
-        {ref, refs} = Protocol.next_ref(state.refs)
-        line = Protocol.encode_action(action, ref)
-        state = %{state | refs: refs}
+    # WebSockex não devolve lista de frames no reply: cada retry vai por
+    # cast (cai no handle_cast acima) e a ação do tick volta como reply
+    for %{line: line} <- effects, do: WebSockex.cast(self(), {:text, line})
+    for %{drop: ref} <- effects, do: IO.puts("drop #{ref}: sem ACK depois dos retries")
 
-        {frames ++ [{:text, line}], Pending.add_pending(pending, ref, line, msg.tick),
-         state}
-      else
-        {frames, pending, state}
-      end
+    if msg.status == "alive" and state.my_id do
+      action = Decide.decide(msg, state.my_id)
+      {ref, refs} = Protocol.next_ref(state.refs)
+      line = Protocol.encode_action(action, ref)
 
-    state = %{state | pending: pending}
-    if frames == [], do: {:ok, state}, else: {:reply, frames, state}
+      state = %{
+        state
+        | refs: refs,
+          pending: Pending.add_pending(pending, ref, line, msg.tick)
+      }
+
+      {:reply, {:text, line}, state}
+    else
+      {:ok, %{state | pending: pending}}
+    end
   end
 
   defp dispatch(%{type: "ack"} = msg, state),

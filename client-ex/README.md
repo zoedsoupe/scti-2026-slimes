@@ -32,4 +32,4 @@ Sem as variáveis de ambiente, o padrão é `ws://localhost:4000/ws` e o nome `e
 
 ## Protocolo
 
-O contrato do exercício (E1 a E4) está em `../docs/PROTOCOL.md`.
+O contrato do exercício (E1 a E3) está em `../docs/PROTOCOL.md`.

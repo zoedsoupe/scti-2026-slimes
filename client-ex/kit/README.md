@@ -4,7 +4,7 @@ Cliente **não oficial**, sem suporte do instrutor. Uso por conta e risco: dúvi
 
 **Regra de dependências:** o domínio (`Protocol`, `Observation`, `Decide`, `Pending`) é puro e nunca conhece rede. Só a casca (`Client`, o processo WebSockex) toca em socket.
 
-Este é o kit do minicurso. Você escreve **cinco funções puras** (E1 a E4); toda a infraestrutura (conexão, reconexão, envio) já está pronta e não deve ser modificada.
+Este é o kit do minicurso. Você escreve **três funções puras** (E1 a E3); toda a infraestrutura (conexão, reconexão, envio, retry) já está pronta e não deve ser modificada.
 
 ## Setup
 
@@ -27,9 +27,8 @@ Os exercícios começam vermelhos; os testes ficam verdes conforme você impleme
 | E1 | `lib/slimes_client/protocol.ex` | `parse_observation/1` |
 | E2 | `lib/slimes_client/protocol.ex` | `encode_action/2` |
 | E3 | `lib/slimes_client/decide.ex` | `decide/2` |
-| E4 | `lib/slimes_client/pending.ex` | `on_ack/2`, `on_timeout/2` |
 
-Cada stub tem um comentário TODO com o formato esperado. Os testes de cada exercício vivem em `test/protocol_test.exs` (E1, E2), `test/decide_test.exs` (E3) e `test/pending_test.exs` (E4).
+Cada stub tem um comentário TODO com o formato esperado. Os testes de cada exercício vivem em `test/protocol_test.exs` (E1, E2) e `test/decide_test.exs` (E3).
 
 ## Conectar ao servidor
 
@@ -53,4 +52,4 @@ linha do socket
 
 ## Protocolo
 
-O contrato do exercício (E1 a E4) está no PROTOCOL.md ao lado deste README.
+O contrato do exercício (E1 a E3) está no PROTOCOL.md ao lado deste README.
