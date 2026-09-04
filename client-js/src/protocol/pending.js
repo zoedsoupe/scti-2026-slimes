@@ -1,4 +1,4 @@
-// E4: política de retry pura sobre o mapa de pendentes.
+// Política de retry pura sobre o mapa de pendentes.
 // pending: Map ref -> {line, tick, retries}. Nada aqui toca no socket:
 // on_timeout devolve o que fazer ({retry} ou {drop}) e a borda executa.
 

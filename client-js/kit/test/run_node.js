@@ -2,7 +2,6 @@
 
 import "./protocol_test.js";
 import "./strategy_test.js";
-import "./pending_test.js";
 import "./resolve_test.js";
 import { run } from "./runner.js";
 

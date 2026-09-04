@@ -7,7 +7,7 @@
   <body>
     <h1>Testes do kit Slimes</h1>
     <p>
-      Os exercícios E1 a E4 começam vermelhos. Implemente as funções marcadas
+      Os exercícios E1 a E3 começam vermelhos. Implemente as funções marcadas
       com TODO em <code>src/protocol/</code> e <code>src/strategy/</code> e
       recarregue esta página.
     </p>
@@ -16,7 +16,6 @@
       import { run } from "./runner.js";
       await import("./protocol_test.js");
       await import("./strategy_test.js");
-      await import("./pending_test.js");
       await import("./resolve_test.js");
       const { passed, failed } = await run();
       const p = document.createElement("p");

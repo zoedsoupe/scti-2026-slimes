@@ -2,16 +2,32 @@
 // Regra do PROTOCOL.md: tokens extras no final são ignorados (leitor
 // tolerante), linha malformada vira {tag: "error"} e nunca lança exceção.
 
+// ok(value): embrulha um parse que deu certo no resultado tagueado.
+//   value: o valor de domínio (observação, mensagem, etc.)
+// Devolve { tag: "ok", value }.
+// Exemplo: ok({ tick: 3 })  // => { tag: "ok", value: { tick: 3 } }
 export const ok = (value) => ({ tag: "ok", value });
+
+// err(reason): embrulha um parse que falhou.
+//   reason: string curta com o motivo (ex: "obs sem tick")
+// Devolve { tag: "error", reason }.
+// Exemplo: err("obs sem tick")  // => { tag: "error", reason: "obs sem tick" }
 export const err = (reason) => ({ tag: "error", reason });
 
+// int: token -> inteiro base-10, ou null se o token não for inteiro.
+// Uso interno; qualquer null torna a linha malformada.
 const int = (tok) => {
   // inteiros base-10; qualquer outra coisa torna a linha malformada
   if (!/^-?\d+$/.test(tok)) return null;
   return parseInt(tok, 10);
 };
 
-// célula: x,y,terrain,owner,fortified (tokens extras na célula ignorados)
+// parseCell(tok): uma célula da observação -> objeto de domínio.
+//   tok: string "x,y,terrain,owner,fortified" (tokens extras na célula
+//        são ignorados)
+// Devolve { x, y, terrain, owner, fortified } ou null se malformada.
+// Exemplo:
+//   parseCell("3,4,forest,2,0")  // => { x: 3, y: 4, terrain: "forest", owner: 2, fortified: 0 }
 export function parseCell(tok) {
   const f = tok.split(",");
   if (f.length < 5) return null;
@@ -20,6 +36,8 @@ export function parseCell(tok) {
   return { x, y, terrain: f[2], owner, fortified };
 }
 
+// cellList: token "cel;cel;..." -> array de células, [] se vazio/ausente,
+// null se qualquer célula for malformada. Uso interno.
 const cellList = (tok) => {
   if (tok === undefined || tok === "") return [];
   const cells = tok.split(";").map(parseCell);
@@ -38,6 +56,19 @@ export function parseObservation(line) {
   return err("TODO E1: implemente parseObservation");
 }
 
+// parseLine(line): despacha uma linha crua do socket para a mensagem de
+// domínio correspondente (OBS, WELCOME, ACK, NACK, ERR, SCORE, DIFF, PONG;
+// no lado do simulador também HELLO, ACT e PING).
+//   line: string crua recebida do servidor (ex: "ACK r-1 12")
+// Devolve ok(mensagem) ou err(motivo). Nunca lança exceção; tokens extras
+// no final são ignorados.
+// Exemplos:
+//   parseLine("ACK r-1 12")
+//   // => ok({ type: "ack", ref: "r-1", tick: 12 })
+//   parseLine("NACK r-1 bad_cell fora do alcance")
+//   // => ok({ type: "nack", ref: "r-1", code: "bad_cell", detail: "fora do alcance" })
+//   parseLine("linha qualquer")
+//   // => err("tipo desconhecido linha")
 export function parseLine(line) {
   const t = line.split(" ");
   switch (t[0]) {

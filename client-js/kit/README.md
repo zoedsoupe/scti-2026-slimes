@@ -2,7 +2,7 @@
 
 **Regra de dependências:** `src/protocol/`, `src/world/` e `src/strategy/` nunca importam nada de `src/infra/` (domínio puro não conhece infraestrutura). Só `src/infra/` toca em DOM, canvas e rede.
 
-Este é o kit do minicurso. Você escreve **quatro funções puras** (E1 a E4); toda a infraestrutura (transporte, reconexão, renderização, simulador local) já está pronta e não deve ser modificada.
+Este é o kit do minicurso. Você escreve **três funções puras** (E1 a E3); toda a infraestrutura (transporte, reconexão, retry de ações, renderização, simulador local) já está pronta e não deve ser modificada.
 
 ## Como rodar
 
@@ -25,9 +25,8 @@ Abra http://localhost:8000/test/ (link "testes" na barra da página). Os exercí
 | E1 | `src/protocol/parse.js` | `parseObservation(line)` |
 | E2 | `src/protocol/encode.js` | `encodeAction(action, ref)` |
 | E3 | `src/strategy/decide.js` | `decide(obs, myId)` |
-| E4 | `src/protocol/pending.js` | `onAck(pending, ref)`, `onTimeout(pending, now)` |
 
-Cada stub tem um comentário TODO com o formato esperado. Os testes de cada exercício vivem em `test/protocol_test.js` (E1, E2), `test/strategy_test.js` (E3) e `test/pending_test.js` (E4).
+Cada stub tem um comentário TODO com o formato esperado. Os testes de cada exercício vivem em `test/protocol_test.js` (E1, E2) e `test/strategy_test.js` (E3).
 
 ## Jogar contra o simulador local
 
