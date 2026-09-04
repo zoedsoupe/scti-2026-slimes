@@ -28,7 +28,7 @@ for pair in $kits; do
 
   mkdir "$stage/$dir"
   cp -R "$src/." "$stage/$dir/"
-  cp docs/PROTOCOL.md docs/WORKSHOP.md "$stage/$dir/"
+  cp docs/PROTOCOL.md docs/CHEATSHEET.md "$stage/$dir/"
 
   rm -f "$out"
   (cd "$stage" && zip -qr "$root/$out" "$dir" \
