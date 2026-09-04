@@ -1,0 +1,267 @@
+/* nyxvamp veil — palette */
+:root {
+  --nv-bg: #1E1E2E;
+  --nv-fg: #D9E0EE;
+  --nv-purple: #BD93F9;
+  --nv-pink: #FF79C6;
+  --nv-cyan: #8BE9FD;
+  --nv-green: #50FA7B;
+  --nv-yellow: #F1FA8C;
+  --nv-surface: #252536;
+  --nv-border: #33334A;
+  --nv-muted: #9393A8;
+  --nv-danger: #FF5555;
+}
+
+/* Slidev theme overrides */
+:root {
+  --slidev-theme-primary: var(--nv-purple);
+  --slidev-theme-accents-teal: var(--nv-cyan);
+  --slidev-theme-accents-yellow: var(--nv-yellow);
+  --slidev-theme-accents-red: var(--nv-danger);
+  --slidev-code-background: var(--nv-surface);
+  --slidev-code-font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+html,
+body,
+#app,
+.slidev-layout {
+  background-color: var(--nv-bg);
+  color: var(--nv-fg);
+}
+
+.slidev-layout {
+  background-color: var(--nv-bg);
+  color: var(--nv-fg);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+.slidev-layout h1,
+.slidev-layout h2,
+.slidev-layout h3,
+.slidev-layout h4 {
+  font-family: 'Space Grotesk', 'Inter', sans-serif;
+  color: var(--nv-fg);
+  letter-spacing: -0.01em;
+}
+
+/* Gradient rule motif under headings on section/statement slides */
+.slidev-layout.section h1::after,
+.slidev-layout.statement h1::after,
+.slidev-layout.cover h1::after {
+  content: "";
+  display: block;
+  margin-top: 0.6em;
+  height: 3px;
+  width: 7rem;
+  background: linear-gradient(90deg, var(--nv-purple), var(--nv-pink));
+  border-radius: 2px;
+}
+
+.slidev-layout.cover h1,
+.slidev-layout.section h1 {
+  color: var(--nv-fg);
+}
+
+.slidev-layout a {
+  color: var(--nv-cyan);
+  text-decoration: none;
+  border-bottom: 1px dotted var(--nv-cyan);
+}
+
+.slidev-layout strong,
+.slidev-layout b {
+  color: var(--nv-purple);
+}
+
+.slidev-layout em {
+  color: var(--nv-pink);
+  font-style: italic;
+}
+
+.slidev-layout blockquote {
+  border-left: 3px solid var(--nv-pink);
+  background: var(--nv-surface);
+  color: var(--nv-fg);
+  padding: 0.6em 1em;
+  border-radius: 0 6px 6px 0;
+}
+
+.slidev-layout code:not(pre code) {
+  background: var(--nv-surface);
+  color: var(--nv-pink);
+  padding: 0.1em 0.35em;
+  border-radius: 4px;
+  border: 1px solid var(--nv-border);
+}
+
+.slidev-layout pre,
+.slidev-layout pre.shiki {
+  background: var(--nv-surface) !important;
+  border: 1px solid var(--nv-border);
+  border-radius: 8px;
+}
+
+.slidev-layout hr {
+  border: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--nv-purple), var(--nv-pink));
+  opacity: 0.6;
+}
+
+/* muted helper */
+.muted {
+  color: var(--nv-muted);
+}
+
+.purple {
+  color: var(--nv-purple);
+}
+
+.pink {
+  color: var(--nv-pink);
+}
+
+.cyan {
+  color: var(--nv-cyan);
+}
+
+.green {
+  color: var(--nv-green);
+}
+
+.yellow {
+  color: var(--nv-yellow);
+}
+
+/* section dividers */
+.slidev-layout.section {
+  background:
+    radial-gradient(ellipse at top left, rgba(189, 147, 249, 0.10), transparent 50%),
+    radial-gradient(ellipse at bottom right, rgba(255, 121, 198, 0.08), transparent 50%),
+    var(--nv-bg);
+}
+
+/* statement layout punch */
+.slidev-layout.statement h1,
+.slidev-layout.statement h2 {
+  background: linear-gradient(90deg, var(--nv-purple), var(--nv-pink));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Mermaid */
+.slidev-layout .mermaid {
+  background: var(--nv-surface);
+  border: 1px solid var(--nv-border);
+  border-radius: 8px;
+  padding: 0.6em;
+}
+
+/* inline SVG diagrams (nyxvamp) */
+.diag {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.diag svg {
+  max-width: 100%;
+  max-height: 19em;
+  height: auto;
+  font-family: 'Inter', system-ui, sans-serif;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+.dg-node {
+  fill: var(--nv-surface);
+  stroke: var(--nv-border);
+}
+
+.dg-pink {
+  stroke: var(--nv-pink);
+}
+
+.dg-cyan {
+  stroke: var(--nv-cyan);
+}
+
+.dg-green {
+  stroke: var(--nv-green);
+}
+
+.dg-purple {
+  stroke: var(--nv-purple);
+}
+
+.dg-optional {
+  stroke-dasharray: 6 4;
+}
+
+.dg-title {
+  fill: var(--nv-fg);
+  font-size: 14px;
+  font-weight: 600;
+  text-anchor: middle;
+  font-family: 'Space Grotesk', 'Inter', sans-serif;
+}
+
+.dg-sub {
+  fill: var(--nv-muted);
+  font-size: 10.5px;
+  text-anchor: middle;
+}
+
+.dg-lane {
+  fill: var(--nv-muted);
+  font-size: 11.5px;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.dg-edge {
+  stroke: var(--nv-muted);
+  fill: none;
+}
+
+.dg-edge-label {
+  fill: var(--nv-muted);
+  font-size: 10.5px;
+  text-anchor: middle;
+}
+
+.dg-back {
+  stroke: var(--nv-purple);
+  stroke-width: 1.5;
+  fill: none;
+  stroke-dasharray: 6 4;
+}
+
+.dg-back-label {
+  fill: var(--nv-purple);
+  font-size: 11px;
+}
+
+.dg-legend {
+  fill: var(--nv-muted);
+  font-size: 12px;
+}
+
+/* table */
+.slidev-layout table {
+  border-collapse: collapse;
+}
+
+.slidev-layout th,
+.slidev-layout td {
+  border-bottom: 1px solid var(--nv-border);
+  padding: 0.4em 0.8em;
+}
+
+.slidev-layout th {
+  color: var(--nv-purple);
+  text-align: left;
+}
