@@ -90,7 +90,8 @@ defmodule SlimesClient.Protocol do
   # ou {:error, "motivo"}. Linha malformada vira {:error, _}, nunca exceção.
   # Tokens extras no final são ignorados (é o que salva o seu cliente no
   # drill da v2).
-  def parse_observation(line) when is_binary(line) do
+  @spec parse_observation(list(String.t())) :: {:ok, map()} | {:error, String.t()}
+  def parse_observation(line) do
     {:error, "TODO E1: implemente parse_observation (#{line})"}
   end
 

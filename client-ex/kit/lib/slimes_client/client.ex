@@ -32,6 +32,12 @@ defmodule SlimesClient.Client do
       |> Map.put(:my_id, nil)
       |> Map.put(:pending, %{})
 
+    GenServer.cast(self(), {:hello, ref})
+    {:ok, state}
+  end
+
+  @impl true
+  def handle_cast({:hello, ref}, %{name: name} = state) do
     {:reply, {:text, Protocol.encode_hello(ref, "colony", name)}, state}
   end
 
