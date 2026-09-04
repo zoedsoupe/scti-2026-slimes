@@ -2,6 +2,8 @@ package main
 
 // Helpers puros sobre uma observação (a visão que chega a cada tick).
 // Nada aqui conhece socket ou rede.
+//
+// INFRA: não edite este arquivo. Use estes helpers na sua estratégia (E3).
 
 type pos [2]int
 

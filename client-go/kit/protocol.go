@@ -4,6 +4,10 @@ package main
 // Regra do PROTOCOL.md: tokens extras no final são ignorados (leitor
 // tolerante), linha malformada devolve erro e nunca panica.
 // Refs: <nome>-<sessão>-<n>, sessão de 4 chars gerada uma vez por processo.
+//
+// Este arquivo mistura exercício e infra:
+//   - E1 (ParseObservation) e E2 (EncodeAction) são stubs seus para implementar.
+//   - Todo o resto é INFRA pronta: não edite.
 
 import (
 	"fmt"
@@ -119,19 +123,16 @@ func EncodeHello(ref, role, name string) string {
 }
 
 // E2: ação de domínio -> linha de protocolo com ref correto.
+// TODO E2: implemente. O formato é:
 //
-// O formato é "ACT <ref> <kind> <x> <y>" para expand, attack e fortify,
-// e "ACT <ref> pass" para pass (sem coordenadas).
+//	ACT <ref> <kind> <x> <y>   para expand, attack e fortify
+//	ACT <ref> pass             para pass (sem coordenadas)
 //
-// Exemplo:
-//
-//	EncodeAction(Action{Kind: "expand", X: 12, Y: 7}, "aurora-k3f9-1")
-//	// "ACT aurora-k3f9-1 expand 12 7"
+// A ação de domínio é Action{Kind: "expand" | "attack" | "fortify", X: x, Y: y}
+// ou Action{Kind: "pass"}.
+// Enquanto o stub estiver aqui a sua colônia só passa a vez.
 func EncodeAction(a Action, ref string) string {
-	if a.Kind == "pass" {
-		return fmt.Sprintf("ACT %s pass", ref)
-	}
-	return fmt.Sprintf("ACT %s %s %d %d", ref, a.Kind, a.X, a.Y)
+	return fmt.Sprintf("ACT %s pass", ref)
 }
 
 // EncodePing monta a linha "PING <ref>", usada para medir latência.
@@ -196,44 +197,19 @@ func parseCellList(tok string) ([]Cell, bool) {
 }
 
 // E1: uma linha OBS crua -> observação de domínio.
-//
-// O formato da linha é:
+// TODO E1: implemente. O formato da linha é:
 //
 //	OBS <ref> <tick> <status> <scores_tick> <celulas>
 //
-// status é "alive" ou "dead"; celulas é a lista separada por ";".
-// Devolve Message{Type: "obs", ...} ou erro; nunca panica.
+// status é "alive" ou "dead"; celulas é a lista separada por ";"
+// (ParseCell e parseCellList acima já existem, use-as). Devolva:
 //
-// Exemplo:
+//	Message{Type: "obs", Ref: ..., Tick: ..., Status: ..., ScoresTick: ..., Cells: ...}
 //
-//	msg, err := ParseObservation("OBS srv-97 97 alive 97 9,5,plain,0,0")
-//	// err == nil, msg.Tick == 97, msg.Status == "alive", len(msg.Cells) == 1
+// Linha malformada devolve erro, nunca panica. Tokens extras no final
+// são ignorados (é o que salva o seu cliente no drill da v2).
 func ParseObservation(line string) (Message, error) {
-	t := strings.Split(line, " ")
-	if t[0] != "OBS" {
-		return Message{}, fmt.Errorf("tipo inesperado %s", t[0])
-	}
-	return parseObservation(t)
-}
-
-func parseObservation(t []string) (Message, error) {
-	tick, ok1 := atoi(tok(t, 2))
-	scoresTick, ok2 := atoi(tok(t, 4))
-	if !ok1 || !ok2 {
-		return Message{}, fmt.Errorf("tick ausente ou invalido")
-	}
-	status := tok(t, 3)
-	if status != "alive" && status != "dead" {
-		return Message{}, fmt.Errorf("status invalido %s", status)
-	}
-	cells, ok := parseCellList(tok(t, 5))
-	if !ok {
-		return Message{}, fmt.Errorf("lista de celulas malformada")
-	}
-	return Message{
-		Type: "obs", Ref: tok(t, 1), Tick: tick,
-		Status: status, ScoresTick: scoresTick, Cells: cells,
-	}, nil
+	return Message{}, fmt.Errorf("TODO E1: implemente ParseObservation")
 }
 
 func parseWelcome(t []string) (Message, error) {

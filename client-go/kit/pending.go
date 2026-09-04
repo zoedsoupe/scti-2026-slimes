@@ -3,6 +3,8 @@ package main
 // Política de retry pura sobre o mapa de pendentes.
 // Nada aqui toca no socket: OnTimeout devolve o que fazer
 // (retry ou drop) e a borda executa.
+//
+// INFRA: não edite este arquivo.
 
 const (
 	Budget  = 3 // tentativas máximas por ref

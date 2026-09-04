@@ -35,4 +35,4 @@ Se a conexao cair, o cliente reconecta apos 1 segundo com o mesmo nome. O servid
 
 ## Contrato do exercicio
 
-O protocolo de linhas e as etapas E1 a E4 estao em `../docs/PROTOCOL.md`. Para jogar, o unico arquivo que voce precisa editar e `decide.go`.
+O protocolo de linhas e as etapas E1 a E3 estao em `../docs/PROTOCOL.md`. Para jogar, o unico arquivo que voce precisa editar e `decide.go`.
