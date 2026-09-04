@@ -5,15 +5,15 @@ Referência rápida de todas as mensagens. O contrato completo está em `PROTOCO
 ## Gramática mínima
 
 - Uma mensagem por linha, um frame WebSocket por linha.
-- Tokens separados por um espaço.
+- Pedaços separados por um espaço.
 - Texto livre só no final de `ERR` e `NACK`.
 - Listas: `;` entre itens, `,` entre campos.
-- Célula completa: `x,y,terreno,dono,fortificada`.
+- Casa completa: `x,y,terreno,dono,fortificada`.
 - Mudança (DIFF): `x,y,dono,fortificada`.
-- Terreno: `plain` `forest` `water` `rock`. Dono `0` = vazia. Fortificada: `0`/`1`.
+- Terreno: `plain` `forest` `water` `rock`. Dono `0` = casa vazia. Fortificada: `0`/`1`.
 - Status: `alive` `dead`.
-- Refs do cliente: `<nome>-<sessão>-<n>`. Refs do servidor: `srv-<tick>`.
-- Regra de parse: ignore tokens extras no final; linha malformada vai para o erro, nunca derruba.
+- Refs do cliente (a etiqueta): `<nome>-<sessão>-<n>`. Refs do servidor: `srv-<tick>`.
+- Regra de parse: ignore pedaços extras no final da linha; linha malformada vira erro de retorno, nunca derruba o programa.
 
 ## Cliente → servidor
 
@@ -32,11 +32,11 @@ Referência rápida de todas as mensagens. O contrato completo está em `PROTOCO
 | Mensagem | Formato |
 |---|---|
 | WELCOME (colônia) | `WELCOME srv-0 <id> <nome> <cor> <w> <h> <tick_ms> <raio> <x>,<y>` |
-| WELCOME (espectador) | `WELCOME srv-0 spectator <w> <h> <tick_ms> <célula>;<célula>;...` |
-| OBS (colônia, por tick) | `OBS srv-<tick> <tick> <status> <scores_tick> <célula>;<célula>;...` |
+| WELCOME (espectador) | `WELCOME srv-0 spectator <w> <h> <tick_ms> <casa>;<casa>;...` |
+| OBS (colônia, por tick) | `OBS srv-<tick> <tick> <status> <scores_tick> <casa>;<casa>;...` |
 | ACK | `ACK <ref> <tick>` |
 | NACK | `NACK <ref> <código> <texto livre>` |
-| SCORE (todos, por tick) | `SCORE srv-<tick> <tick> <id>,<nome>,<células>,<status>;...` |
+| SCORE (todos, por tick) | `SCORE srv-<tick> <tick> <id>,<nome>,<casas>,<status>;...` |
 | DIFF (espectadores, por tick) | `DIFF srv-<tick> <tick> <x>,<y>,<dono>,<fort>;...` |
 | PONG | `PONG <ref>` |
 | ERR | `ERR <ref> <código> <texto livre>` |
@@ -48,13 +48,13 @@ Referência rápida de todas as mensagens. O contrato completo está em `PROTOCO
 | `bad_version` | ERR | versão diferente de `v1` |
 | `bad_message` | ERR | linha malformada, tipo desconhecido, número inválido |
 | `bad_name` | NACK | nome inválido, reservado ou duplicado |
-| `bad_cell` | NACK | fora da grade ou não adjacente à colônia |
-| `not_empty` | NACK | `expand` em célula ocupada |
-| `not_enemy` | NACK | `attack` em célula que não é inimiga |
-| `not_self` | NACK | `fortify` em célula que não é sua |
+| `bad_cell` | NACK | fora da grade ou não vizinha da colônia |
+| `not_empty` | NACK | `expand` em casa ocupada |
+| `not_enemy` | NACK | `attack` em casa que não é inimiga |
+| `not_self` | NACK | `fortify` em casa que não é sua |
 | `attacks_disabled` | NACK | `attack` no modo cooperativo |
 | `duplicate_ref` | NACK | informativo; o `ACK` original é reenviado em seguida |
-| `too_late` | NACK | chegou após a resolução; enfileirada para o próximo tick |
+| `too_late` | NACK | chegou depois do tick fechar; entra na fila do próximo tick |
 
 ## Exemplos
 
