@@ -26,10 +26,22 @@ defmodule SlimesWeb.Router do
     |> send_resp(200, Slimes.World.export(Slimes.World))
   end
 
-  get "/kit.zip" do
+  get "/kit" do
     conn
     |> put_resp_header("content-type", "application/zip")
+    |> put_resp_header("content-disposition", ~s(attachment; filename="student-kit.zip"))
     |> send_file(200, Application.app_dir(:slimes, "priv/student-kit.zip"))
+  end
+
+  @langs ~w(elixir golang c python)
+
+  for l <- @langs do
+    get "/kit/#{l}" do
+      conn
+      |> put_resp_header("content-type", "application/zip")
+      |> put_resp_header("content-disposition", ~s(attachment; filename="student-kit-#{unquote(l)}.zip"))
+      |> send_file(200, Application.app_dir(:slimes, "priv/student-kit-#{unquote(l)}.zip"))
+    end
   end
 
   match _ do
