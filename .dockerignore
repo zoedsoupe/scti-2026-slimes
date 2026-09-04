@@ -1,0 +1,7 @@
+_build/
+deps/
+.git/
+.expert/
+.claude/
+erl_crash.dump
+priv/*.zip
